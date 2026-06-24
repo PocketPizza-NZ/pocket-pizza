@@ -1,0 +1,50 @@
+:81 {
+        @transform_port_query {
+                query XTransformPort=*
+        }
+
+        handle @transform_port_query {
+                reverse_proxy localhost:{query.XTransformPort} {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+}
+
+# ════════════════════════════════════════════════════════════════
+# PRODUCTION CONFIG (example for pocketpizza.co.nz deployment)
+# ════════════════════════════════════════════════════════════════
+# Save this snippet and use it on your production server.
+#
+# pocketpizza.co.nz, www.pocketpizza.co.nz {
+#         reverse_proxy localhost:3000 {
+#                 header_up Host {host}
+#                 header_up X-Forwarded-For {remote_host}
+#                 header_up X-Forwarded-Proto {scheme}
+#                 header_up X-Real-IP {remote_host}
+#         }
+# }
+#
+# # Admin subdomain — same Next.js app, but the app detects the host
+# # and auto-opens the admin dashboard (no ?admin=1 needed).
+# # Customers can't reach admin from the main site — the URL itself is
+# # the secret.
+# admin.pocketpizza.co.nz {
+#         reverse_proxy localhost:3000 {
+#                 header_up Host {host}
+#                 header_up X-Forwarded-For {remote_host}
+#                 header_up X-Forwarded-Proto {scheme}
+#                 header_up X-Real-IP {remote_host}
+#         }
+# }
